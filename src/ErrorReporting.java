@@ -39,7 +39,7 @@ public class ErrorReporting
 		debugAll += (a + "\n");
 	}
 	/**
-	 * Prints out to console a boolean debug message
+	 * Prints out to console a int debug message
 	 * @param file : the file that the command is in
 	 * @param ln : line number
 	 * @param input : the integer to make into debug message
@@ -51,7 +51,7 @@ public class ErrorReporting
 		debugAll += (a + "\n");
 	}
 	/**
-	 * Prints out to console a boolean debug message
+	 * Prints out to console a double debug message
 	 * @param file : the file that the command is in
 	 * @param ln : line number
 	 * @param input : the double to make into debug message
@@ -63,7 +63,7 @@ public class ErrorReporting
 		debugAll += (a + "\n");
 	}
 	/**
-	 * Prints out to console a boolean debug message
+	 * Prints out to console a String debug message
 	 * @param file : the file that the command is in
 	 * @param ln : line number
 	 * @param input : the string to make into debug message
@@ -75,7 +75,7 @@ public class ErrorReporting
 		debugAll += (a + "\n");
 	}
 	/**
-	 * Prints out to console a boolean debug message
+	 * Prints out to console a float debug message
 	 * @param file : the file that the command is in
 	 * @param ln : line number
 	 * @param input : the float to make into debug message
@@ -87,7 +87,7 @@ public class ErrorReporting
 		debugAll += (a + "\n");
 	}
 	/**
-	 * Prints out to console a boolean debug message
+	 * Prints out to console a char debug message
 	 * @param file : the file that the command is in
 	 * @param ln : line number
 	 * @param input : the cahr to make into debug message
@@ -99,7 +99,7 @@ public class ErrorReporting
 		debugAll += (a + "\n");
 	}
 	/**
-	 * Prints out to console a boolean debug message
+	 * Prints out to console a byte debug message
 	 * @param file : the file that the command is in
 	 * @param ln : line number
 	 * @param input : the byte to make into debug message
@@ -111,7 +111,7 @@ public class ErrorReporting
 		debugAll += (a + "\n");
 	}
 	/**
-	 * Prints out to console a boolean debug message
+	 * Prints out to console a short debug message
 	 * @param file : the file that the command is in
 	 * @param ln : line number
 	 * @param input : the short to make into debug message
@@ -123,7 +123,7 @@ public class ErrorReporting
 		debugAll += (a + "\n");
 	}
 	/**
-	 * Prints out to console a boolean debug message
+	 * Prints out to console a long debug message
 	 * @param file : the file that the command is in
 	 * @param ln : line number
 	 * @param input : the long to make into debug message

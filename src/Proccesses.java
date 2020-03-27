@@ -17,6 +17,7 @@ public class Proccesses
     	else if(input == 'Y')	return "Yellow ";
     	else if(input == 'G')	return "Green ";
     	else if(input == 'B')  	return "Blue ";
+    	else if(input == 'W')	return "Wild ";
     	else return "ERROR!";
 	}
 	/**
@@ -78,11 +79,16 @@ public class Proccesses
 		}
 		else return false;
 	}
-
+	/**
+	 * Checks to see if the inputed player exists
+	 * @param player : int
+	 * @param playerCount : int
+	 * @return boolean : exists = true | !exists = false
+	 */
 	public boolean checkPlayerExist(int player, int playerCount)
 	{
 		if(player > playerCount)return false;
-		else if(player <= 0) return false;
+		else if(player < 0) return false;
 		else return true;
 	}
 

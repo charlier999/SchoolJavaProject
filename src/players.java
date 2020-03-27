@@ -90,9 +90,21 @@ public class players
 		for(int x = 0; x < getPlayerCount(); x++)
 		{
 			ErrorReporting.debug("players.java", 96, x, true);
-			System.out.println(
-					playerArray[x] // array is size [4]
-					.getHandCardsString());
+			displayPlayerHand(x);
+		}
+	}
+	/**
+	 * Displays the hand of the inputed player
+	 * @param player : int
+	 */
+	protected void displayPlayerHand(int player)
+	{
+		if(!p.checkPlayerExist(player, getPlayerCount()))
+			System.out.println("ERROR! Player " + player + "does not exist.");
+		else
+		{
+			System.out.println("Player" + player + "'s Cards: \n" +
+								getPlayer(player).getHandCardsString());
 		}
 	}
 }
