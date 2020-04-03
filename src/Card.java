@@ -11,7 +11,7 @@ public class Card {
     /**
 	 * @return the color
 	 */
-	private char getColor() {return color;}
+	public char getColor() {return color;}
 	
 	/**
 	 * @param color the color to set
@@ -23,7 +23,7 @@ public class Card {
 	/**
 	 * @return the rank
 	 */
-	private String getRank() {return rank;}
+	public String getRank() {return rank;}
 	
 	/**
 	 * @param rank the rank to set

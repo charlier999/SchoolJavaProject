@@ -12,6 +12,7 @@ public class Deck
     		"0A","0B",
     		"D2A","D2B",
     		"SA","SB",
+    		"RA","RB",
     		"1A","1B","1C","1D",
     		"2A","2B","2C","2D",
     		"3A","3B","3C","3D",

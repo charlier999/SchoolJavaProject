@@ -43,6 +43,7 @@ public class Proccesses
 		else if(input.equals("9"))  	return "Nine";
 		else if(input.equals("D4"))  	return "Draw Four";
 		else if(input.equals("W"))  	return "Wild";
+		else if(input.equals("R"))  	return "Reverse";
 		else return "ERROR!"; // If the inputed value is none of the above,
 							  // method will return an Error String
 	}
@@ -51,7 +52,7 @@ public class Proccesses
 	 * @param input : String
 	 * @return String : the shortened result
 	 */
-	private String removeDupPrevent(String input)
+	public String removeDupPrevent(String input)
 	{
 		if(input.length() == 2)
 			return input.substring(0, 1); // returns the first character
@@ -92,4 +93,21 @@ public class Proccesses
 		else return true;
 	}
 
+	/**
+	 * Checks to see if the inputed String is a integer
+	 * @param input : String
+	 * @return output : boolean
+	 */
+	public boolean isInteger(String input)
+	{
+		try
+		{
+			Integer.parseInt(input);
+			return true;
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
+	}
 }

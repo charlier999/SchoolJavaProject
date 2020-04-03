@@ -23,10 +23,10 @@ public class turns
 	public int getTurnNumber(){ return turnNumber; }
 	
 	private void setTurnDirection(boolean direction){ turnDirection = direction; }
-	private boolean getTurnDirection(){ return turnDirection; }
+	public boolean getTurnDirection(){ return turnDirection; }
 	
 	public void setPlayerCount(int count){ playerCount = count;}
-	private int getPlayerCount(){return playerCount;}
+	public int getPlayerCount(){return playerCount;}
 	
 	// METHODS -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=-
 	/**

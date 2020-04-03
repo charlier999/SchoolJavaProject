@@ -15,7 +15,7 @@ public class UNO_MAIN
 	 */
 	public static void main(String[] args) 
 	{
-		ErrorReporting.setMasterPrint(false);
+		ErrorReporting.setMasterPrint(true);
 		GamePlay gp = new GamePlay();
 		gp.start();
 	}

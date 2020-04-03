@@ -12,7 +12,7 @@ public class players
 {
 	Scanner sc = new Scanner(System.in);
 	Proccesses p = new Proccesses();
-	protected hands[] playerArray = new hands[4];
+	hands[] playerArray = new hands[5];
 	
 	/**
 	 * The amount of players that are in the game.
@@ -21,7 +21,7 @@ public class players
 	/**
 	 * Creates all four players
 	 */
-	protected void createPlayers()
+	public void createPlayers()
 	{
 		for(int x = 0; x < 4; x++)
 		{
@@ -33,19 +33,32 @@ public class players
 	 * @param player : the player's number
 	 * @return hands 
 	 */
-	protected hands getPlayer(int player)
+	public hands getPlayer(int player)
 	{		
-		ErrorReporting.debug("players.java", 32, player, true);
-		ErrorReporting.debug("players.java", 33, getPlayerCount(), true);
-		ErrorReporting.debug("players.java", 34, p.checkPlayerExist(player, getPlayerCount()), true);
-		if(p.checkPlayerExist(player, getPlayerCount()))
+		ErrorReporting.debug("players.java", 38, player, true);
+		ErrorReporting.debug("players.java", 39, getPlayerCount(), true);
+		ErrorReporting.debug("players.java", 40, p.checkPlayerExist(player, getPlayerCount()), true);
+		ErrorReporting.debug("players.java", 41, playerArray.length, true);
+		if(player == 4)
+		{
+			System.out.println("P44");
 			return playerArray[player];
-		return null;
+		}
+		else if(p.checkPlayerExist(player, getPlayerCount()))
+		{
+			System.out.println("P48");
+			return playerArray[player];
+		}
+		else
+		{
+			System.out.println("P53");
+			return null;
+		}
 	}
 	/**
 	 * Asks the user for the amount of players that are in the game
 	 */
-	protected void userSetPlayerCount()
+	public void userSetPlayerCount()
 	{
 		boolean done = false;
 		while(!done)
@@ -57,7 +70,6 @@ public class players
 			if(p.checkNegitiveIntInput(output)) // if the number is negative
 			{
 				setPlayerCount(output);
-//				createPlayers();
 				done = true;
 			}
 			else
@@ -72,7 +84,7 @@ public class players
 	 * Sets the playerCount int value in players.java
 	 * @param input : int 
 	 */
-	protected void setPlayerCount(int input)
+	public void setPlayerCount(int input)
 	{
 		playerCount = input;
 	}
@@ -80,11 +92,11 @@ public class players
 	 * Gets the int player count from players.java
 	 * @return playerCount : int
 	 */
-	protected int getPlayerCount() { return playerCount; }
+	public int getPlayerCount() { return playerCount; }
 	/**
 	 * Displays all of the players current hands
 	 */
-	protected void displayAllPlayersHands()
+	public void displayAllPlayersHands()
 	{
 		ErrorReporting.debug("players.java", 93, getPlayerCount(), true);
 		for(int x = 0; x < getPlayerCount(); x++)
@@ -97,7 +109,7 @@ public class players
 	 * Displays the hand of the inputed player
 	 * @param player : int
 	 */
-	protected void displayPlayerHand(int player)
+	public void displayPlayerHand(int player)
 	{
 		if(!p.checkPlayerExist(player, getPlayerCount()))
 			System.out.println("ERROR! Player " + player + "does not exist.");
