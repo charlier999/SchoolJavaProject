@@ -23,10 +23,19 @@ public class Deck
     		"8A","8B","8C","8D",
     		"9A","9B","9C","9D",
     		};
-    public Card[] deck = new Card[color.length*rank.length+4];
+    public Card[] deck = new Card[color.length*rank.length];
     
     private int position = 0;
 
+    /**
+     * Returns the total count of cards in the deck
+     * @return
+     */
+    public int getTotalCardCount()
+    {
+    	return deck.length;
+    }
+    
     /**
      * Returns the position of the card
      * @return position : int 
@@ -75,10 +84,10 @@ public class Deck
                 deck[counter++] = new Card(color[a], rank[b]);
             }
         }
-        	deck[counter++] = new Card('W', "D4A");
-        	deck[counter++] = new Card('W', "D4B");
-        	deck[counter++] = new Card('W', "WA");
-        	deck[counter++] = new Card('W', "WB");
+//        	deck[counter++] = new Card('W', "D4A");
+//        	deck[counter++] = new Card('W', "D4B");
+//        	deck[counter++] = new Card('W', "WA");
+//        	deck[counter++] = new Card('W', "WB");
      }
 
     /**

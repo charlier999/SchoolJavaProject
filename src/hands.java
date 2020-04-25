@@ -29,7 +29,6 @@ public class hands
 	 */
 	public void addCardToHand(int amount, Deck deck)
 	{
-		System.out.println("32 DEBUG");
 		ErrorReporting.debug("hands.java", 25, amount, true);
 		for(int x = 0; x < amount; x++)
 		{
@@ -43,7 +42,6 @@ public class hands
 	 */
 	public void addCardToHand(Card card)
 	{
-		System.out.println("46 DEBUG");
 		hand.add(card);
 	}	
 	/**

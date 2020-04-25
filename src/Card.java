@@ -40,6 +40,7 @@ public class Card {
         this.color = color;
         this.rank = rank;
     }
+    Card(){}
 
     /**
      * @return String : color and rank as "color - rank"

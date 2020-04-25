@@ -1,4 +1,6 @@
+import java.util.Random;
 import java.util.Scanner;
+import java.util.stream.IntStream;
 
 /**
  * @author Charles Davis
@@ -6,14 +8,18 @@ import java.util.Scanner;
  */
 public class GamePlay 
 {
-	Deck deck = new Deck();
 	Scanner sc = new Scanner(System.in);
+	Random rnd = new Random();
+	
+	Deck deck = new Deck();
 	turns t = new turns();
 	players p = new players();
 	Proccesses proc = new Proccesses();
 
 	// Variables
-	private int playerWinner;
+	private int winner;
+	private boolean forceWin;
+	private boolean autoOrPlayer;
 	
 	// -=- -=- -=- -=- -=- -=- -=- -=- Inital Game Play Start -=- -=- -=- -=- -=-
 	/**
@@ -23,19 +29,20 @@ public class GamePlay
 	{
 		deck.start();
 		//deck.displayAllCards();
-		System.out.println("-=- -=- -=- PlayerCount ASK -=- -=- -=-");
 		p.userSetPlayerCount();
 		p.createPlayers();
-		System.out.println("-=- -=- -=- DEAL CARDS TO Player -=- -=- -=- \n");
+		autoPlayUserSelect();
 		dealPlayerCards();
-		p.displayAllPlayersHands();
-		p.getPlayer(4)
-			.addCardToHand
-			(deck.dealCard());
+		System.out.println("Wild Cards have been removed due to a crash exploit.");
+		//p.displayAllPlayersHands();
+		dealPlayDeckCard();
 		t.start();
 		t.setPlayerCount(p.getPlayerCount());
-		System.out.println("-=- -=- -=- GAME START -=- -=- -=- \n");
-		gameStart();
+		forceWin = false;
+		if(autoOrPlayer)
+			gameAutoStart();
+		else
+			gameStart();
 		
 	}
 	/**
@@ -50,17 +57,72 @@ public class GamePlay
 			p.getPlayer(x).addCardToHand(7, deck);
 		}
 	}
-
-	// -=- -=- -=- -=- -=- -=- -=- -=- Game Play Loop -=- -=- -=- -=- -=- -=- -=-
 	/**
-	 * The actual game play
+	 * Deals a card to the play pile to start the game
+	 */
+	private void dealPlayDeckCard()
+	{
+		boolean done = false;
+		Card temp = new Card();
+		while(!done)
+		{
+			temp = deck.dealCard();
+			if(temp.getColor() != 'W')
+			{
+				done = true;
+			}
+		}
+		p.getPlayer(4).addCardToHand(temp);
+	}
+	/**
+	 * Asks the user weather they wish to have the computer to play the game
+	 * or the user to play the game.
+	 */
+	private void autoPlayUserSelect()
+	{
+		boolean done = false;
+		while(!done)
+		{
+			System.out.println("Do you wish to have the computer play the game \n (y or n)");
+			String input = sc.nextLine().toLowerCase();
+			if(input.contains("y"))
+			{
+				autoOrPlayer = true;
+				done = true;
+			}
+			else if(input.contains("n"))
+			{
+				autoOrPlayer = false;
+				done = true;
+			}
+			else
+			{
+				System.out.println(input + " is not a valid responce.");
+			}
+		}
+	}
+	
+	// -=- -=- -=- -=- -=- -=- -=- -=- Player Game Play Loop -=- -=- -=- -=- -=- -=- -=-
+	/**
+	 * The human gameplay loop
 	 */
 	private void gameStart()
 	{
-		while(!checkWinCondition())
+		while(!forceWin)
 		{
-			playerTurn(t.getTurnNumber());
-			t.nextTurn(p.getPlayerCount());
+			if(deck.getPosition() == deck.getTotalCardCount())
+				deck.start();
+			if(isAllCardsPlayable())
+			{
+				playerTurn();
+			}
+			else
+			{
+				System.out.println("player" + t.getTurnNumber() + " does not have any playable cards.\n"
+						 + "*player" + t.getTurnNumber() + " gets a card and end thier turn*");
+						p.getPlayer(t.getTurnNumber()).addCardToHand(1, deck);
+			}
+			t.nextTurn();
 		}
 		displayWinMessage();
 	}
@@ -69,20 +131,20 @@ public class GamePlay
 	 * Asks for user commands.
 	 * @param player : int
 	 */
-	private void playerTurn(int player)
+	private void playerTurn()
 	{
-		ErrorReporting.debug("GamePlay.java", 72, player, true);
-		System.out.println("-=- -=- Player" + player + "'s Turn -=- -=-");
+		ErrorReporting.debug("GamePlay.java", 72, t.getTurnNumber(), true);
+		System.out.println("-=- -=- Player" + t.getTurnNumber() + "'s Turn -=- -=-");
 		System.out.println("Play Pile Card: " + getTopPlayPileCard().translateCard());
-		p.displayPlayerHand(player);
-		playerInput(player);
+		p.displayPlayerHand(t.getTurnNumber());
+		playerInput();
 	}
 	/**
 	 * Gets the players commands and does actions from 
 	 * the inputed command
 	 * @param player : int
 	 */
-	private void playerInput(int player)
+	private void playerInput()
 	{
 		boolean done = false;
 		while(!done)
@@ -91,51 +153,64 @@ public class GamePlay
 			System.out.println("What do you wish to do? ('help' for commands)");
 			String input = sc.nextLine();
 			ErrorReporting.debug("GamePlay.java", 90, input, true);
-			
-			if(input.equals("help")) 
-			// Help
+			if(proc.isInteger(input)) 
 			{
-				playerHelp();
-			}
-			else if(input.equals("pc"))
-			// Play Cards
-			{
-				if(isAllCardsPlayable(player))
+				int intInput = Integer.parseInt(input);
+				if(intInput > -1)
+				// If intinput is not negative
 				{
-					playCardtoPlayDeck(player, deck);
+					if(p.getPlayer(t.getTurnNumber()).getCardCount() > intInput)
+					{
+						if(isCardPlayable( p.getPlayer(t.getTurnNumber()).getCard(intInput) ) )
+						{
+							int player = t.getTurnNumber();
+							done = true;
+							
+							// Adds the players card to the play deck
+							p.getPlayer(4).addCardToHand( p.getPlayer(t.getTurnNumber()).getCard(intInput) );
+							// Applies the card's effect to players
+							cardEffect(p.getPlayer(t.getTurnNumber()).getCard(intInput));
+							// Removes the played card from the player's hand
+							p.getPlayer(player).removeCardfromHand(intInput);
+							if(p.getPlayer(player).getCardCount() == 0)
+							{
+								forceWin = true;
+								winner = player;
+							}
+								
+						}
+						else 
+							System.out.println(input + " is not a playable card. Try another card. ('help' for commands)");
+					}
+					else 
+						System.out.println(input + " is higher then the amount of cards you have. ('help' for commands)");
 				}
-				else
-				{	
-					System.out.println("You do not have any playable cards.\n"
-									 + "*You get a card and end your turn*");
-					p.getPlayer(player).addCardToHand(1, deck);
-				}
-				done = true;
-
+				else 
+					System.out.println(input + " is a negative number. Negative numbers are not allowed. ('help' for commands)");
 			}
+			else if(input.equals("help")) 
+			// Help
+				playerHelp();
 			else if(input.equals("dc"))
 			// Draw Cards
 			{
 				done = true;
-				p.getPlayer(player).addCardToHand(1, deck);
+				p.getPlayer(t.getTurnNumber()).addCardToHand(1, deck);
 			}
 			else if(input.equals("vc")) 
 			// View Cards
 			{
 				System.out.println("Play Pile Card: " + getTopPlayPileCard().translateCard());
 				System.out.println("-=- -=- -=- -=- -=- -=- -=- -=- -=- -=-");
-				p.displayPlayerHand(player);
+				p.displayPlayerHand(t.getTurnNumber());
 			}
 			else if(input.equals("dd"))
 			// Displays the debug info
-			{
 				ErrorReporting.displaydebugAll();
-			}
+			else if(input.equals("end"))
+				forceWin = true;			
 			else
-			{
 				System.out.println(input + " is not a valid command. ('help' for commands)");
-			}
-				
 		}
 	}
 	/**
@@ -145,172 +220,168 @@ public class GamePlay
 	{
 		System.out.println("--------------------Help--------------------\n"
 						 + "help  |  displays all available commands 	\n"
-						 + "pc    |  brings up the card play gui       	\n"
+						 + "(int) |  plays the selected card          	\n"
 						 + "dc    |  Draws one card from the draw pile 	\n"
-						 + "vc    |  Displays all held cards			\n"
-						 + "dd    |  [debug] Displays all debug msgs      ");
-	}
-	/**
-	 * Checks to see if any player has achived the win condition
-	 * @return output : boolean
-	 */
-	private boolean checkWinCondition()
-	{
-		boolean output = false;
-		for(int x = 0; x > p.getPlayerCount(); x++)
-		{
-			if(p.getPlayer(x).getCardCount() == 0)
-			{
-				output = true;
-				playerWinner = x;
-				break;
-			}
-		}
-		return output;
+						 + "vc    |  Displays all held cards			  ");
 	}
 	/**
 	 * Displays the win condition
 	 */
 	private void displayWinMessage()
 	{
-		System.out.println("");
-	}
+		System.out.println("\n \n \nPlayer" + winner + " has won the game!");
+		System.exit(0);	
+		}
 	/**
 	 * Checks to see if a player has playable cards
 	 * @param player : int
 	 * @return output : boolean
 	 */
-	private boolean isAllCardsPlayable(int player)
+	private boolean isAllCardsPlayable()
 	{
-		boolean output = false;
-		for(int x = 0; x > p.getPlayer(player).getCardCount(); x++)
+		for(int x = 0; x < p.getPlayer(t.getTurnNumber()).getCardCount(); x++)
 		{
-			Card card = p.getPlayer(player).getCard(x);
+			Card card = p.getPlayer(t.getTurnNumber()).getCard(x);
+			String topRank = proc.removeDupPrevent(getTopPlayPileCard().getRank());
+			String cardRank = proc.removeDupPrevent(card.getRank());
+			
 			if(getTopPlayPileCard().getColor() == card.getColor())
 			{
-				output = true;
-				break;
+				return true;
 			}
-			else if(getTopPlayPileCard().getRank() == card.getRank())
+			else if(topRank.equals(cardRank))
 			{
-				output = true;
-				break;
+				return true;
 			}
 			else if(card.getColor() == 'W')
 			{	
-				output = true;
-				break;
+				return true;
 			}
 		}
-		return output;
+		return false;
 	}
 
-	
-	// -=- -=- -=- -=- -=- -=- -=- -=- Play Cards GUI -=- -=- -=- -=- -=- -=- -=- 
+	// -=- -=- -=- -=- -=- -=- -=- -=- Computer Game Play Loop -=- -=- -=- -=- -=- -=- -=-
 	/**
-	 * Starts the play card system
-	 * @param player : int
-	 * @param deck : Deck
+	 * Computer only gameplay loop
 	 */
-	private void playCardtoPlayDeck(int player, Deck deck)
+	private void gameAutoStart()
 	{
-		if(proc.checkPlayerExist(player, p.getPlayerCount()))
+		while(!forceWin)
 		{
-			p.displayPlayerHand(player);
-			playerPCInput(player);
-		}
-	}
-	/**
-	 * Gets the players commands and does actions from 
-	 * the inputed command
-	 * @param player : int
-	 * @return cancel : boolean
-	 */
-	private void playerPCInput(int player)
-	{
-		int intInput = 0; 
-		boolean done = false;
-		while(!done)
-		{
-			System.out.println("Enter the number of the card to play the card"
-					+ "\n enter 'help' for help");
-			String input = sc.nextLine();
-			if(proc.isInteger(input)) 
-			{
-				intInput = Integer.parseInt(input);
-				if(intInput > -1)
-				// If intinput is not negative
-				{
-					if(intInput > p.getPlayer(player).getCardCount())
-					{
-						if(isCardPlayable( p.getPlayer(player).getCard(intInput) ) )
-						{
-							// Adds the players card to the play deck
-							p.getPlayer(4).addCardToHand( p.getPlayer(player).getCard(intInput) );
-							// Applies the card's effect to players
-							cardEffect(p.getPlayer(player).getCard(intInput));
-							// Removes the played card from the player's hand
-							p.getPlayer(player).removeCardfromHand(intInput);
-						}
-						else 
-							System.out.println(input + " is not a playable card. Try another card. ('help' for commands)");
-					}
-					else 
-						System.out.println(input + " is not a valid card. ('help' for commands)");
-				}
-				else 
-					System.out.println(input + " is not a valid card. ('help' for commands)");
+			//System.out.println("Win Conditon: " + checkWinCondition());
 
-			}
-			else if(input.equals("help")) 
+			if(deck.getPosition() == deck.getTotalCardCount())
+				deck.start();
+			if(isAllCardsPlayable())
 			{
-				done = false;
-				playerCardsHelp();
-			}
-			else if(input.equals("vc")) 
-			{
-				done = false;
-				p.displayPlayerHand(player);
-			}
-			else if(input.equals("dd"))
-			{
-				done = false;
-				ErrorReporting.displaydebugAll();
+				playerAutoTurn();
 			}
 			else
 			{
-				System.out.println(input + " is not a valid command. ('help' for commands)");
+				System.out.println("player" + t.getTurnNumber() + " does not have any playable cards.\n"
+						 + "*player" + t.getTurnNumber() + " gets a card and end thier turn*");
+						p.getPlayer(t.getTurnNumber()).addCardToHand(1, deck);
 			}
-				
+			t.nextTurn();
 		}
+		displayWinMessage();
+	}	
+	/**
+	 * Displays who's turn it is and that players cards.
+	 * Asks for user commands.
+	 * @param player : int
+	 */
+	private void playerAutoTurn()
+	{
+		ErrorReporting.debug("GamePlay.java", 72, t.getTurnNumber(), true);
+		System.out.println("-=- -=- Player" + t.getTurnNumber() + "'s Turn -=- -=-");
+		System.out.println("Play Pile Card: " + getTopPlayPileCard().translateCard());
+		p.displayPlayerHand(t.getTurnNumber());
+		playerAutoPlayCard();
 	}
 	/**
-	 * Displays the help screen for playing cards
+	 * The computer plays the first playable card in the hand
+	 * @param player
 	 */
-	private void playerCardsHelp()
+	private void playerAutoPlayCard()
 	{
-		System.out.println("----------------------Play Cards Help-------------------\n"
-						 + "help  |  displays all available commands 				\n"
-						 + "(int) |  plays the selected card          				\n"
-						 + "vc    |  Displays all held cards						\n"
-						 + "can   |  Cancels playing card and returns to base menu 	\n" 
-						 + "dd    |  [debug] Displays all debug msgs       ");		
+		int player = t.getTurnNumber();
+		boolean playCard = false;
+		for(int x = 0; x < p.getPlayer(player).getCardCount(); x++)
+		{
+			Card card = p.getPlayer(player).getCard(x);
+			String topRank = proc.removeDupPrevent(getTopPlayPileCard().getRank());
+			String cardRank = proc.removeDupPrevent(card.getRank());
+			
+			if(getTopPlayPileCard().getColor() == card.getColor())
+				playCard = true;
+			else if(topRank.equals(cardRank))
+				playCard = true;
+			else if(card.getColor() == 'W')
+				playCard = true;
+			else
+				playCard = false;
+			
+			if(playCard)
+			{
+				if(x > -1)
+				// If intinput is not negative
+				{
+					if(!(p.getPlayer(player).getCardCount() < x))
+					{
+						if(isCardPlayable( p.getPlayer(player).getCard(x) ) )
+						{
+							// Adds the players card to the play deck
+							p.getPlayer(4).addCardToHand( p.getPlayer(player).getCard(x));
+							// Applies the card's effect to players
+							cardEffect(p.getPlayer(player).getCard(x));
+							// Removes the played card from the player's hand
+							p.getPlayer(player).removeCardfromHand(x);
+							
+							x = p.getPlayer(player).getCardCount();
+							
+							if(p.getPlayer(player).getCardCount() == 0)
+							{
+								forceWin = true;
+								winner = player;
+							}
+						}
+						else 
+							System.out.println(x + " is not a playable card. Try another card. ('help' for commands)");
+					}
+					else 
+						System.out.println(x + " is higher then the amount of cards you have. ('help' for commands)");
+				}
+				else 
+					System.out.println(x + " is a negative number. Negative numbers are not allowed. ('help' for commands)");
+			}
+			//break;
+		}
 	}
+	
+	// -=- -=- -=- -=- -=- -=- -=- -=- Play Cards GUI -=- -=- -=- -=- -=- -=- -=- 
 	/**
 	 * Checks to see if the card is Playable
 	 * @param card : int
 	 * @return output : boolean 
 	 */
 	private boolean isCardPlayable(Card card)
-	{
-		boolean output = false;
+	{		
+		String topRank = proc.removeDupPrevent(getTopPlayPileCard().getRank());
+		String cardRank = proc.removeDupPrevent(card.getRank());
+		
 		if(getTopPlayPileCard().getColor() == card.getColor())
-			output = true;
-		else if(getTopPlayPileCard().getRank() == card.getRank())
-			output = true;
+			return true;
+		else if(topRank.equals(cardRank))
+			return true;
 		else if(card.getColor() == 'W')
-			output = true;
-		return output;
+			return true;
+		else
+			return false;
+		
+		
+
 	}
 	/**
 	 * Applies the effect of the inputed card
@@ -318,6 +389,7 @@ public class GamePlay
 	 */
 	private void cardEffect(Card card)
 	{
+		System.out.println("Player" + t.getTurnNumber() + " plays " + card.translateCard());
 		String input = card.getRank();
 		input = proc.removeDupPrevent(input); // removes the dup identifier from input
 		if(input.equals("0"))			nothing();			// Zero
@@ -343,25 +415,25 @@ public class GamePlay
 	 * @return tempTurnNumber : int
 	 */
 	private int playerEffectTurns(int turns)
-	{
+	{		
 		int tempTurnNumber = t.getTurnNumber();
-		for(int x = 0; x > turns; x++)
+		for(int x = 0; x < turns; x++)
 		{
 			if(t.getTurnDirection())
 			{
 				// FORWARDS
-				if(tempTurnNumber == t.getPlayerCount() - 1)
+				if(tempTurnNumber == t.getPlayerCount())
 					tempTurnNumber = 0;
 				else
-					tempTurnNumber += 1;
+					tempTurnNumber = tempTurnNumber + 1;
 			}
 			else
 			{
 				// BACKWORDS
 				if(tempTurnNumber == 0)
-					tempTurnNumber = t.getPlayerCount() - 1;
+					tempTurnNumber = t.getPlayerCount();
 				else
-					tempTurnNumber -= 1;
+					tempTurnNumber = tempTurnNumber - 1;
 			}
 		}
 		return tempTurnNumber;
@@ -373,9 +445,9 @@ public class GamePlay
 	 */
 	private void cardDrawCards(int cards)
 	{
-		System.out.println(p.getPlayer(playerEffectTurns(1)) 
-							+ " gets " + cards + " cards from " 
-							+ t.getTurnNumber() + "card effect.");
+		System.out.println("Player" + playerEffectTurns(1)
+							+ " gets " + cards + " cards from player" 
+							+ t.getTurnNumber() + "'s card effect.");
 		p.getPlayer(playerEffectTurns(1)).addCardToHand(cards, deck);
 		cardSkip();
 	}
@@ -385,34 +457,57 @@ public class GamePlay
 	private void cardWild()
 	{
 		boolean done = false;
+		String input = "";
+		String colorOutput = "";
 		while(!done)
 		{
+			if(!autoOrPlayer)
+			{
 			System.out.println("What color do you wish to change to? "
-							 + "/n r : Red | y : Yellow | g : Green | b : Blue");
-			String input = sc.nextLine();
+							 + "\n r : Red | y : Yellow | g : Green | b : Blue");
+			input = sc.nextLine().toLowerCase();
+			}
+			else
+			{
+				int x = rnd.nextInt(3);
+				if(x == 0)
+					input = "r";
+				else if(x==1)
+					input = "y";
+				else if(x == 2)
+					input = "g";
+				else 
+					input = "b";
+			}
+			
 			if(input.equals("r"))			
 			{
-				p.getPlayer(5).addCardToHand(new Card('R', ""));
+				p.getPlayer(4).addCardToHand(new Card('R', "0"));
+				colorOutput = "RED";
 				done = true;
 			}
 			else if(input.equals("y"))		
 			{
-				p.getPlayer(5).addCardToHand(new Card('Y', ""));
+				p.getPlayer(4).addCardToHand(new Card('Y', "0"));
+				colorOutput = "YELLOW";
 				done = true;
 			}
 			else if(input.equals("g"))  	
 			{
-				p.getPlayer(5).addCardToHand(new Card('G', ""));
+				p.getPlayer(4).addCardToHand(new Card('G', "0"));
+				colorOutput = "GREEN";
 				done = true;
 			}
 			else if(input.equals("b"))  	
 			{
-				p.getPlayer(5).addCardToHand(new Card('B', ""));
+				p.getPlayer(4).addCardToHand(new Card('B', "0"));
+				colorOutput = "BLUE";
 				done = true;
 			}
 			else
 				System.out.println(input + " is not a valid color.");
 		}
+		System.out.println("Player" + t.getTurnNumber() + " has changed the color to " + colorOutput);
 	}
 	/**
 	 * Allows the player to change the color of play and
@@ -429,13 +524,18 @@ public class GamePlay
 	 */
 	private void cardSkip()
 	{
-		t.nextTurn(p.getPlayerCount());
+		System.out.println("player" + playerEffectTurns(1)
+							+ " turn has been skiped by player" 
+							+  t.getTurnNumber()
+							+ "'s card");
+		t.nextTurn();
 	}
 	/**
 	 * Reverses the direction of play
 	 */
 	private void cardReverse()
 	{
+		System.out.println("Direction of play has been reversed.");
 		t.reverseTurns();
 	}
 
@@ -452,6 +552,6 @@ public class GamePlay
 	 */
 	private Card getTopPlayPileCard()
 	{
-		return p.getPlayer(4).getCard( p.getPlayer(4).getCardCount() );
+		return p.getPlayer(4).getCard( p.getPlayer(4).getCardCount()-1);
 	}
 }

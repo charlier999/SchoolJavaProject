@@ -27,6 +27,7 @@ public class players
 		{
 			playerArray[x] = new hands();
 		}
+		playerArray[4] = new hands();
 	}
 	/**
 	 * Returns the player's hand from the inputed player number
@@ -41,17 +42,14 @@ public class players
 		ErrorReporting.debug("players.java", 41, playerArray.length, true);
 		if(player == 4)
 		{
-			System.out.println("P44");
 			return playerArray[player];
 		}
 		else if(p.checkPlayerExist(player, getPlayerCount()))
 		{
-			System.out.println("P48");
 			return playerArray[player];
 		}
 		else
 		{
-			System.out.println("P53");
 			return null;
 		}
 	}

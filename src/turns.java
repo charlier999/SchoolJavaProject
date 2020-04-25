@@ -41,7 +41,7 @@ public class turns
 	 * Changes the turn to the next person
 	 * @param playerCount : int
 	 */
-	public void nextTurn(int playerCount)
+	public void nextTurn()
 	{
 		ErrorReporting.debug("turns.java", 46, getTurnDirection(), true);
 		ErrorReporting.debug("turns.java", 47, getTurnNumber(), true);
